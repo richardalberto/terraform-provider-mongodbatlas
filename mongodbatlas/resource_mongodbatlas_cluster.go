@@ -3,6 +3,7 @@ package mongodbatlas
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"strings"
 	"time"
@@ -184,8 +185,13 @@ func resourceClusterCreate(d *schema.ResourceData, meta interface{}) error {
 		AutoScaling:           autoScaling,
 	}
 
-	cluster, _, err := client.Clusters.Create(d.Get("group").(string), &params)
+	cluster, resp, err := client.Clusters.Create(d.Get("group").(string), &params)
 	if err != nil {
+		if bodyBytes, err := ioutil.ReadAll(resp.Body); err == nil {
+			bodyString := string(bodyBytes)
+			log.Printf("[ERROR] Got %s when trying to create MongoDB cluster with body %s", err, bodyString)
+		}
+
 		return fmt.Errorf("Error creating MongoDB Cluster: %s", err)
 	}
 	d.SetId(cluster.ID)

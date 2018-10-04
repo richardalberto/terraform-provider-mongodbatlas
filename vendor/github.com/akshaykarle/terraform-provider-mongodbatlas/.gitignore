@@ -1,0 +1,12 @@
+.terraform
+*.tfstate*
+examples/terraform.d
+dist/
+.DS_Store
+
+website/.vagrant
+website/.bundle
+website/build
+website/node_modules
+
+/coverage.txt

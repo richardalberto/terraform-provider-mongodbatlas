@@ -13,7 +13,6 @@ type DigestRequest struct {
 	Password string
 	Uri      string
 	Username string
-	Header   http.Header
 	Auth     *authorization
 	Wa       *wwwAuthenticate
 }
@@ -24,9 +23,9 @@ type DigestTransport struct {
 }
 
 // NewRequest creates a new DigestRequest object
-func NewRequest(username, password, method, uri, body string, header http.Header) DigestRequest {
+func NewRequest(username, password, method, uri, body string) DigestRequest {
 	dr := DigestRequest{}
-	dr.UpdateRequest(username, password, method, uri, body, header)
+	dr.UpdateRequest(username, password, method, uri, body)
 	return dr
 }
 
@@ -40,14 +39,12 @@ func NewTransport(username, password string) DigestTransport {
 
 // UpdateRequest is called when you want to reuse an existing
 //  DigestRequest connection with new request information
-func (dr *DigestRequest) UpdateRequest(username, password, method, uri, body string, header http.Header) *DigestRequest {
+func (dr *DigestRequest) UpdateRequest(username, password, method, uri, body string) *DigestRequest {
 	dr.Body = body
 	dr.Method = method
 	dr.Password = password
 	dr.Uri = uri
 	dr.Username = username
-	dr.Header = make(http.Header)
-	copyHeaders(header, dr.Header)
 	return dr
 }
 
@@ -65,7 +62,7 @@ func (dt *DigestTransport) RoundTrip(req *http.Request) (resp *http.Response, er
 		body = buf.String()
 	}
 
-	dr := NewRequest(username, password, method, uri, body, req.Header)
+	dr := NewRequest(username, password, method, uri, body)
 	return dr.Execute()
 }
 
@@ -142,7 +139,6 @@ func (dr *DigestRequest) executeRequest(authString string) (resp *http.Response,
 		return nil, err
 	}
 
-	copyHeaders(dr.Header, req.Header)
 	req.Header.Add("Authorization", authString)
 
 	client := &http.Client{
@@ -150,12 +146,4 @@ func (dr *DigestRequest) executeRequest(authString string) (resp *http.Response,
 	}
 
 	return client.Do(req)
-}
-
-func copyHeaders(src http.Header, dest http.Header) {
-	for key, values := range src {
-		for _, value := range values {
-			dest.Add(key, value)
-		}
-	}
 }

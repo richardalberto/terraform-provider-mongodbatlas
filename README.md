@@ -76,6 +76,6 @@ make build
 The `mongodbatlas_container` resource does not destroy the container (vpc) in mongo atlas. This is due to a limitation of the mongo atlas API as it doesn't support deleting this resource.
 
 ## Contributing
-* Install project dependencies: `go get github.com/kardianos/govendor`
+* Install project dependencies: `go get github.com/golang/dep`
 * Run tests: `make test`
 * Build the binary: `make build`
